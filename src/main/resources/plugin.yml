@@ -1,0 +1,58 @@
+name: BreathOfDawn
+version: '${project.version}'
+main: com.breathofdawn.breathofdawn.main
+api-version: 1.19
+authors: [ Alex_Zaalishvili ]
+commands:
+  heal:
+    description: Heal player to full health
+    aliases:
+      - [h]
+    usage: /heal [targets]
+    permission: bod.heal
+    permission-message: You aren't allowed to heal!
+  feed:
+    description: Feed a player to full hunger
+    usage: /feed [targets]
+    permission: bod.feed
+    permission-message: You aren't allowed to feed!
+  balance:
+    description: Check player balance
+    usage: /balance <player>
+    aliases:
+      - bal
+      - money
+    permission: bod.bal
+    permission-message: No wallet for you :(
+  setbal:
+    description: Set balance
+    usage: /setbal <player> <value>
+    permission: bod.setbal
+  ubal:
+    description: Update balance (increment or decrement)
+    usage: /ubal <player> <value>
+    permission: bod.ubal
+  randbal:
+    description: Set balance to random amount
+    usage: /randbal <player>
+    permission: bod.randbal
+
+permissions:
+  bod.heal:
+    description: Heal perms
+    default: true
+  bod.feed:
+    description: Feed perms
+    default: true
+  bod.bal:
+    description: Balance perms
+    default: true
+  bod.setbal:
+    description: Balance edit perms
+    default: true
+  bod.ubal:
+    description: Balance edit perms
+    default: true
+  bod.randbal:
+    description: Balance rand perms
+    default: true
