@@ -17,8 +17,7 @@ public final class main extends JavaPlugin {
 
         new Economy(this);
         new TreeChopper(this);
-        //new TorchHandler(this);
-        //new PlayerChatHandler(this);
+        new VeinMiner(this);
 
         this.getCommand("heal").setExecutor(new Commands());
         this.getCommand("feed").setExecutor(new Commands());
