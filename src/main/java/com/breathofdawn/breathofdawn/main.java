@@ -1,21 +1,28 @@
 package com.breathofdawn.breathofdawn;
 
 import com.breathofdawn.breathofdawn.handlers.*;
-import com.sun.source.tree.Tree;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.IOException;
 
 public final class main extends JavaPlugin {
 
     @Override
     public void onEnable(){
         // Plugin startup logic
-        Bukkit.getLogger().info("Hello World");
+        loadConfig();
 
-        FileManager.CreateDir("plugins/Economy");
-        FileManager.CreateFile("plugins/Economy/economy.json");
+        FileManager.CreateDir("plugins/BreathOfDawn");
+        FileManager.CreateFile("plugins/BreathOfDawn/players.json");
 
-        new Economy(this);
+        //new Economy(this);
+        try {
+            new PlayerLoginHandler(this).LoadJSON();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         new TreeChopper(this);
         new VeinMiner(this);
 
@@ -31,5 +38,10 @@ public final class main extends JavaPlugin {
     public void onDisable(){
         // Plugin shutdown logic
         Bukkit.getLogger().info("Shutting down");
+    }
+
+    public void loadConfig(){
+        getConfig().options().copyDefaults(true);
+        saveConfig();
     }
 }

@@ -1,18 +1,14 @@
 package com.breathofdawn.breathofdawn.handlers;
 
-import com.breathofdawn.breathofdawn.EconomyPlayer;
+import com.breathofdawn.breathofdawn.objects.EconomyPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.checkerframework.common.reflection.qual.GetClass;
 import org.jetbrains.annotations.NotNull;
-import com.breathofdawn.breathofdawn.main;
 
-import java.awt.*;
 import java.util.Random;
 
 public class EconomyCommands implements CommandExecutor {

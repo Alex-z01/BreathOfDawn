@@ -1,6 +1,8 @@
 package com.breathofdawn.breathofdawn.handlers;
 
 import com.breathofdawn.breathofdawn.main;
+import com.breathofdawn.breathofdawn.objects.BoDPlayer;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -40,6 +42,13 @@ public class VeinMiner implements Listener {
         _validOres.add(Material.LAPIS_ORE);
         _validOres.add(Material.DIAMOND_ORE);
         _validOres.add(Material.ANCIENT_DEBRIS);
+        _validOres.add(Material.DEEPSLATE_COAL_ORE);
+        _validOres.add(Material.DEEPSLATE_GOLD_ORE);
+        _validOres.add(Material.DEEPSLATE_IRON_ORE);
+        _validOres.add(Material.DEEPSLATE_COPPER_ORE);
+        _validOres.add(Material.DEEPSLATE_DIAMOND_ORE);
+        _validOres.add(Material.DEEPSLATE_LAPIS_ORE);
+        _validOres.add(Material.DEEPSLATE_REDSTONE_ORE);
     }
 
     @EventHandler
@@ -53,6 +62,7 @@ public class VeinMiner implements Listener {
 
             if(_validTools.contains(mainHand.getType())){
                 // Switch mode
+                Bukkit.getLogger().info("VEIN MINER ACTIVATED");
                 _mineMode = !_mineMode;
 
                 String msg = _mineMode ? "Vein Miner activated!" : "Vein Miner deactivated";
@@ -79,7 +89,7 @@ public class VeinMiner implements Listener {
         ItemStack mainHand = inventory.getItemInMainHand();
 
         // If valid chop tool
-        if(_validTools.contains(mainHand.getType()) && _mineMode){
+        if(_validTools.contains(mainHand.getType()) && _mineMode == true){
 
             // Check for log blocks
             ReplaceBlock(player, block, isOre(block), world, mainHand);
@@ -104,7 +114,6 @@ public class VeinMiner implements Listener {
         int dmg = damageable.getDamage(); // Current amount of dmg taken
         damageable.setDamage(++dmg);
         tool.setItemMeta((ItemMeta) damageable);
-
 
         if(dmg >= maxDurability){
             // Destroy tool

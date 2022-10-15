@@ -1,6 +1,6 @@
 package com.breathofdawn.breathofdawn.handlers;
 
-import com.breathofdawn.breathofdawn.EconomyPlayer;
+import com.breathofdawn.breathofdawn.objects.EconomyPlayer;
 import com.breathofdawn.breathofdawn.main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -10,7 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 
 import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.ServerEvent;
+import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONObject;
 
 import java.io.FileWriter;
@@ -21,6 +21,7 @@ import java.util.List;
 
 
 public class Economy implements Listener {
+    private Plugin plugin = main.getPlugin(main.class);
     static List<EconomyPlayer> economyPlayerList = new ArrayList<EconomyPlayer>();
     JSONObject obj = new JSONObject();
 
@@ -31,10 +32,27 @@ public class Economy implements Listener {
     @EventHandler
     public void onLogin(PlayerLoginEvent event){
         Player player = event.getPlayer();
-        EconomyPlayer econPlayer = new EconomyPlayer(0, player);
-        Bukkit.getLogger().info(player.getName() + " logged in");
-        economyPlayerList.add(econPlayer);
-        obj.put(econPlayer.getPlayer().getName(), econPlayer.getBalance());
+        // Check if player listed in config
+        if(plugin.getConfig().contains(player.getName())){
+            // If player exists add accordingly
+            Double balance = (Double) plugin.getConfig().get(player.getName());
+            EconomyPlayer economyPlayer = new EconomyPlayer(balance, player);
+
+            economyPlayerList.add(economyPlayer);
+            obj.put(economyPlayer.getPlayer().getName(), economyPlayer.getBalance());
+
+            player.sendMessage(ChatColor.BLUE + "Welcome back!");
+        }
+        else{
+            EconomyPlayer economyPlayer = new EconomyPlayer(0, player);
+
+            economyPlayerList.add(economyPlayer);
+            obj.put(economyPlayer.getPlayer().getName(), economyPlayer.getBalance());
+
+            player.sendMessage(ChatColor.BLUE + "Welcome" + player.getName() + "!");
+        }
+
+
     }
 
     @EventHandler
