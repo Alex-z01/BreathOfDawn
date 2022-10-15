@@ -1,22 +1,21 @@
 package com.breathofdawn.breathofdawn.handlers;
 
+import com.breathofdawn.breathofdawn.User;
 import com.breathofdawn.breathofdawn.main;
 import com.breathofdawn.breathofdawn.objects.BoDPlayer;
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.GsonBuilder;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.ServerCommandEvent;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class PlayerLoginHandler implements Listener {
 
@@ -25,39 +24,65 @@ public class PlayerLoginHandler implements Listener {
     public PlayerLoginHandler(main plugin) throws IOException {
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
+
+        LoadJSON();
     }
 
     @EventHandler
     public void onLogin(PlayerJoinEvent e) throws IOException {
-        BoDPlayer bodPlayer = new BoDPlayer(e.getPlayer());
+        BoDPlayer loggedInPlayer = new BoDPlayer(e.getPlayer());
 
-        if(_players != null){
-            if(_players.contains(bodPlayer)){
-                Bukkit.getLogger().info("KNOWN PLAYER");
-                return;
-            }else{
-                // Add the player
-                Bukkit.getLogger().info("NEW PLAYER!");
-                _players.add(bodPlayer);
-                WriteJSON();
-            }
-
-        }
-
-        if(_players == null){
-            Bukkit.getLogger().info("FIRST PLAYER!!");
-            _players.add(bodPlayer);
+        if(_players == null)
+        {
+            Bukkit.getLogger().info("PLAYERS ARRAY WAS NULL");
+            _players = new ArrayList<>();
+            _players.add(loggedInPlayer);
             WriteJSON();
             return;
         }
+
+        if(_players.size() == 0){
+            Bukkit.getLogger().info("PLAYERS ARRAY WAS EMPTY");
+            _players.add(loggedInPlayer);
+            WriteJSON();
+            return;
+        }
+
+        _players.forEach((player) -> {
+
+            if(player.getUUID().equals(loggedInPlayer.getUUID())){
+                // Already documented player
+                Bukkit.getLogger().info("KNOWN PLAYER");
+                return;
+            }else{
+                // New player
+                Bukkit.getLogger().info("NEW PLAYER");
+                _players.add(loggedInPlayer);
+                try {
+                    WriteJSON();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
     }
 
-    @EventHandler
-    public void onCommand(ServerCommandEvent e){
-        if (e.getCommand().equals("blist")){
+    @EventHandler void onCommand(ServerCommandEvent e)
+    {
+        if (e.getCommand().equalsIgnoreCase("blist")){
+            if(_players != null)
+            {
+                _players.forEach((player) -> {
+                    Player p = Bukkit.getPlayer(player.getUUID());
+                    OfflinePlayer oP = Bukkit.getOfflinePlayer(player.getUUID());
 
-            for(BoDPlayer player : _players){
-                e.getSender().sendMessage(ChatColor.YELLOW + "" + player.getPlayer().getName());
+                    if(p == null){
+                        Bukkit.getLogger().info(oP.getName());
+                    }else{
+                        Bukkit.getLogger().info(p.getName());
+                    }
+
+                });
             }
         }
     }
@@ -71,14 +96,15 @@ public class PlayerLoginHandler implements Listener {
         {
             // Parse it
             try{
-                Gson gson = new Gson();
+                GsonBuilder builder = new GsonBuilder();
+                builder.setPrettyPrinting();
+                Gson gson = builder.create();
 
                 FileReader reader = new FileReader(path);
 
-                List<BoDPlayer> temp = gson.fromJson(reader, new TypeToken<List<BoDPlayer>>(){}.getType());
-                for(BoDPlayer p : temp){
-                    Bukkit.getLogger().info(p.getUUID()+ "");
-                }
+                _players = gson.fromJson(reader, new TypeToken<ArrayList<BoDPlayer>>() {}.getType()); // WORKS
+                //Bukkit.getLogger().info(gson.toJson(_players));
+                //_players.forEach((player) -> Bukkit.getLogger().info(player.getUUID() + ""));
 
             } catch (Exception e){
                 e.printStackTrace();
@@ -88,7 +114,15 @@ public class PlayerLoginHandler implements Listener {
         if(_players != null)
         {
             for(BoDPlayer player : _players){
-                Bukkit.getLogger().info("" + player.getPlayer().getName());
+                Player p = Bukkit.getServer().getPlayer(player.getUUID());
+                OfflinePlayer offlineP = Bukkit.getOfflinePlayer(player.getUUID());
+
+                if (p == null)
+                {
+                    Bukkit.getLogger().info(offlineP.getName());
+                }else{
+                    Bukkit.getLogger().info(p.getName());
+                }
             }
         }
     }
@@ -98,20 +132,15 @@ public class PlayerLoginHandler implements Listener {
         File file = new File(path);
 
         // Check if file exists
-        if (file.exists())
+        if (file.exists() && _players != null)
         {
-            JSONArray jsonArray = new JSONArray();
+            GsonBuilder builder = new GsonBuilder();
+            builder.setPrettyPrinting();
+            Gson gson = builder.create();
 
-            for(BoDPlayer player : _players){
-                jsonArray.add(player.toJsonObject());
-            }
-
-            String json = jsonArray.toJSONString();
-
-            Bukkit.getLogger().info(json);
-
-            FileWriter fw = new FileWriter(file);
-            fw.write(json);
+            // Write to file
+            FileWriter fw = new FileWriter("plugins/BreathOfDawn/players.json");
+            fw.write(gson.toJson(_players));
             fw.flush();
             fw.close();
         }

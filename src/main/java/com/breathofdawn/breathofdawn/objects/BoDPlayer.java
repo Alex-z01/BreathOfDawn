@@ -10,12 +10,10 @@ import java.util.UUID;
 
 public class BoDPlayer implements Serializable {
 
-    private Player _player;
     private boolean _mineMode, _chopMode;
     private UUID _uuid;
 
     public BoDPlayer(Player p){
-        _player = p;
         _uuid = p.getUniqueId();
         _mineMode = false;
         _chopMode = false;
@@ -31,32 +29,11 @@ public class BoDPlayer implements Serializable {
         return _chopMode;
     }
 
-    public Player getPlayer(){
-        return _player;
-    }
-
     public void setMineMode(boolean active){
         _mineMode = active;
     }
 
     public void setChopMode(boolean active){
         _chopMode = active;
-    }
-
-    public JSONObject toJsonObject(){
-        JSONObject obj = new JSONObject();
-
-        obj.put("Player", _player.getName());
-        obj.put("UUID", _uuid + "");
-        obj.put("minemode", _mineMode + "");
-        obj.put("chopmode", _chopMode + "");
-
-        return obj;
-    }
-
-    public String toGson(){
-        Gson gson = new Gson();
-
-        return gson.toJson(this, BoDPlayer.class);
     }
 }
