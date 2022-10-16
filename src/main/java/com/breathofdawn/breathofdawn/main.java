@@ -6,17 +6,21 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.checkerframework.checker.units.qual.A;
 import org.json.simple.JSONArray;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public final class main extends JavaPlugin {
+
+    PlayerLoginHandler playerLoginHandler;
+    Economy economy;
+    Excavation excavation;
+    CustomEntity customEntity;
+
     @Override
     public void onEnable(){
         // Plugin startup logic
@@ -25,18 +29,16 @@ public final class main extends JavaPlugin {
         FileManager.CreateDir("plugins/BreathOfDawn");
         FileManager.CreateFile("plugins/BreathOfDawn/players.json");
 
-        //new Economy(this);
-
-
         try {
-            new PlayerLoginHandler(this);
+            playerLoginHandler = new PlayerLoginHandler(this);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
+        //economy = new Economy(this);
+        excavation = new Excavation(this);
+        customEntity = new CustomEntity(this);
 
-        new TreeChopper(this);
-        new VeinMiner(this);
 
         this.getCommand("heal").setExecutor(new Commands());
         this.getCommand("feed").setExecutor(new Commands());
@@ -51,8 +53,19 @@ public final class main extends JavaPlugin {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
          */
+    }
+
+    @Override
+    public void onDisable(){
+        // Plugin shutdown logic
+        try {
+            playerLoginHandler.WriteJSON();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Bukkit.getLogger().info("Shutting down");
     }
 
     public void JSONTESTING() throws IOException {
@@ -89,12 +102,6 @@ public final class main extends JavaPlugin {
         //JSONArray jsonArray1 = gson.fromJson(fr, JSONArray.class); // Converts the json file into JSONArray - WORKS
         //Bukkit.getLogger().info(gson.toJson(jsonArray1)); // Works
         //jsonArray1.forEach((usr) -> Bukkit.getLogger().info(usr.toString())); // Works
-    }
-
-    @Override
-    public void onDisable(){
-        // Plugin shutdown logic
-        Bukkit.getLogger().info("Shutting down");
     }
 
     public void loadConfig(){

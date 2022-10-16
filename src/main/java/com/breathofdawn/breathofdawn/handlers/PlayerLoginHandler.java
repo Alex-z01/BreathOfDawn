@@ -1,6 +1,6 @@
 package com.breathofdawn.breathofdawn.handlers;
 
-import com.breathofdawn.breathofdawn.User;
+import com.breathofdawn.breathofdawn.GLOBALS;
 import com.breathofdawn.breathofdawn.main;
 import com.breathofdawn.breathofdawn.objects.BoDPlayer;
 import com.google.common.reflect.TypeToken;
@@ -16,67 +16,66 @@ import org.bukkit.event.server.ServerCommandEvent;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PlayerLoginHandler implements Listener {
-
-    private ArrayList<BoDPlayer> _players = new ArrayList<>();
-
+    
     public PlayerLoginHandler(main plugin) throws IOException {
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
         LoadJSON();
+
+        if(!Objects.isNull(GLOBALS.PLAYERS))
+            DisplayPlayers();
+    }
+
+    public void DisplayPlayers()
+    {
+        GLOBALS.PLAYERS.forEach(boDPlayer -> {
+            Bukkit.getLogger().info(boDPlayer.getUUID() + "");
+        });
     }
 
     @EventHandler
-    public void onLogin(PlayerJoinEvent e) throws IOException {
+    public void onLogin(PlayerJoinEvent e) {
         BoDPlayer loggedInPlayer = new BoDPlayer(e.getPlayer());
 
-        if(_players == null)
+        if(GLOBALS.PLAYERS.size() < 1)
         {
-            Bukkit.getLogger().info("PLAYERS ARRAY WAS NULL");
-            _players = new ArrayList<>();
-            _players.add(loggedInPlayer);
-            WriteJSON();
-            return;
-        }
+            Bukkit.getLogger().info("FIRST PLAYER");
+            GLOBALS.PLAYERS.add(loggedInPlayer);
+        }else{
+            AtomicBoolean found = new AtomicBoolean(false);
+            GLOBALS.PLAYERS.forEach((boDPlayer) -> {
 
-        if(_players.size() == 0){
-            Bukkit.getLogger().info("PLAYERS ARRAY WAS EMPTY");
-            _players.add(loggedInPlayer);
-            WriteJSON();
-            return;
-        }
-
-        _players.forEach((player) -> {
-
-            if(player.getUUID().equals(loggedInPlayer.getUUID())){
-                // Already documented player
-                Bukkit.getLogger().info("KNOWN PLAYER");
-                return;
-            }else{
+                if(boDPlayer.getUUID().equals(e.getPlayer().getUniqueId()) && !found.get()){
+                    // Already documented player
+                    Bukkit.getLogger().info("KNOWN PLAYER");
+                    found.set(true);
+                }
+            });
+            Bukkit.getLogger().info(found + "");
+            if(!found.get())
+            {
                 // New player
                 Bukkit.getLogger().info("NEW PLAYER");
-                _players.add(loggedInPlayer);
-                try {
-                    WriteJSON();
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
+                GLOBALS.PLAYERS.add(loggedInPlayer);
             }
-        });
-    }
+            }
+        }
 
     @EventHandler void onCommand(ServerCommandEvent e)
     {
         if (e.getCommand().equalsIgnoreCase("blist")){
-            if(_players != null)
+            if(!Objects.isNull(GLOBALS.PLAYERS))
             {
-                _players.forEach((player) -> {
+                GLOBALS.PLAYERS.forEach((player) -> {
                     Player p = Bukkit.getPlayer(player.getUUID());
                     OfflinePlayer oP = Bukkit.getOfflinePlayer(player.getUUID());
 
-                    if(p == null){
+                    if(Objects.isNull(p)){
                         Bukkit.getLogger().info(oP.getName());
                     }else{
                         Bukkit.getLogger().info(p.getName());
@@ -102,22 +101,25 @@ public class PlayerLoginHandler implements Listener {
 
                 FileReader reader = new FileReader(path);
 
-                _players = gson.fromJson(reader, new TypeToken<ArrayList<BoDPlayer>>() {}.getType()); // WORKS
-                //Bukkit.getLogger().info(gson.toJson(_players));
-                //_players.forEach((player) -> Bukkit.getLogger().info(player.getUUID() + ""));
+                ArrayList<BoDPlayer> temp = gson.fromJson(reader, new TypeToken<ArrayList<BoDPlayer>>() {}.getType()); // WORKS
+                if(Objects.isNull(temp)) {
+                    GLOBALS.PLAYERS = new ArrayList<>();
+                }else{
+                    GLOBALS.PLAYERS = temp;
+                }
 
             } catch (Exception e){
                 e.printStackTrace();
             }
         }
 
-        if(_players != null)
+        if(!Objects.isNull(GLOBALS.PLAYERS))
         {
-            for(BoDPlayer player : _players){
+            for(BoDPlayer player : GLOBALS.PLAYERS){
                 Player p = Bukkit.getServer().getPlayer(player.getUUID());
                 OfflinePlayer offlineP = Bukkit.getOfflinePlayer(player.getUUID());
 
-                if (p == null)
+                if (Objects.isNull(p))
                 {
                     Bukkit.getLogger().info(offlineP.getName());
                 }else{
@@ -128,11 +130,12 @@ public class PlayerLoginHandler implements Listener {
     }
 
     public void WriteJSON() throws IOException {
+
         String path = ("plugins/BreathOfDawn/players.json");
         File file = new File(path);
 
         // Check if file exists
-        if (file.exists() && _players != null)
+        if (file.exists() && !Objects.isNull(GLOBALS.PLAYERS))
         {
             GsonBuilder builder = new GsonBuilder();
             builder.setPrettyPrinting();
@@ -140,7 +143,7 @@ public class PlayerLoginHandler implements Listener {
 
             // Write to file
             FileWriter fw = new FileWriter("plugins/BreathOfDawn/players.json");
-            fw.write(gson.toJson(_players));
+            fw.write(gson.toJson(GLOBALS.PLAYERS));
             fw.flush();
             fw.close();
         }
