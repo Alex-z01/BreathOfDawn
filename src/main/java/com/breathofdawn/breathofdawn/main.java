@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONArray;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,15 +20,15 @@ public final class main extends JavaPlugin {
     PlayerLoginHandler playerLoginHandler;
     Economy economy;
     Excavation excavation;
+    MobDropHandler mobDropHandler;
     CustomEntity customEntity;
 
     @Override
     public void onEnable(){
         // Plugin startup logic
-        loadConfig();
-
         FileManager.CreateDir("plugins/BreathOfDawn");
-        FileManager.CreateFile("plugins/BreathOfDawn/players.json");
+        FileManager.CreateFile( getDataFolder().getPath() + "/loot_tables.json");
+        FileManager.CreateFile(getDataFolder().getPath() + "/players.json");
 
         try {
             playerLoginHandler = new PlayerLoginHandler(this);
@@ -35,10 +36,14 @@ public final class main extends JavaPlugin {
             throw new RuntimeException(e);
         }
 
-        //economy = new Economy(this);
-        excavation = new Excavation(this);
-        customEntity = new CustomEntity(this);
+        try {
+            mobDropHandler = new MobDropHandler(this);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
+        excavation = new Excavation(this);
+        //economy = new Economy(this);
 
         this.getCommand("heal").setExecutor(new Commands());
         this.getCommand("feed").setExecutor(new Commands());

@@ -24,7 +24,7 @@ public class FileManager {
                 file.createNewFile();
                 Bukkit.getLogger().info("File created: " + file.getName());
             }else{
-                Bukkit.getLogger().info("File already exists.");
+                Bukkit.getLogger().info("File" + file.getName() + "already exists.");
             }
         } catch (IOException e) {
             Bukkit.getLogger().info("An error occurred.");

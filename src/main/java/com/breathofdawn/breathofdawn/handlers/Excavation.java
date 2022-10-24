@@ -19,6 +19,7 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Excavation implements Listener {
@@ -90,6 +91,10 @@ public class Excavation implements Listener {
         // Find this player's BoDPlayer object entry in the list
         BoDPlayer boDPlayer = FindMatchingPlayer(currentPlayer);
 
+        if(Objects.isNull(boDPlayer)){
+            e.setCancelled(true);
+        }
+
         EquipmentSlot hand = e.getHand(); // Get the hand that fired the event
         ItemStack mainHand = e.getPlayer().getInventory().getItemInMainHand(); // Get the mainhand item
         Action action = e.getAction(); // Get the action (key press)
@@ -100,7 +105,6 @@ public class Excavation implements Listener {
             if(_validMineTools.contains(mainHand.getType())){
 
                 ToggleMineMode(boDPlayer);
-
             }
 
             // IF CHOP TOOL (AXE)
@@ -108,13 +112,12 @@ public class Excavation implements Listener {
 
                 ToggleChopMode(boDPlayer);
             }
-
         }
     }
 
     public BoDPlayer FindMatchingPlayer(Player target)
     {
-        AtomicReference<BoDPlayer> res = null;
+        AtomicReference<BoDPlayer> res = new AtomicReference<BoDPlayer>(null);
         GLOBALS.PLAYERS.forEach((boDPlayer) -> {
             if(boDPlayer.getUUID().equals(target.getUniqueId()))
             {
