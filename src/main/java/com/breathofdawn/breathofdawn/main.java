@@ -71,6 +71,7 @@ public final class main extends JavaPlugin {
         Bukkit.getLogger().info("Shutting down");
     }
 
+    /*
     public void JSONTESTING() throws IOException {
         Car car = new Car("honda", 100);
         User user = new User("Alex", 21, car);
@@ -106,6 +107,7 @@ public final class main extends JavaPlugin {
         //Bukkit.getLogger().info(gson.toJson(jsonArray1)); // Works
         //jsonArray1.forEach((usr) -> Bukkit.getLogger().info(usr.toString())); // Works
     }
+     */
 
     public void loadConfig(){
         getConfig().options().copyDefaults(true);
