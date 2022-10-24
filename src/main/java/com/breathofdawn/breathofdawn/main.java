@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONArray;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -21,7 +20,6 @@ public final class main extends JavaPlugin {
     Economy economy;
     Excavation excavation;
     MobDropHandler mobDropHandler;
-    CustomEntity customEntity;
 
     @Override
     public void onEnable(){
