@@ -26,6 +26,8 @@ Select JAR -> From module with dependencies, leave defaults. Modify output direc
 Build -> Build artifacts -> Build (I recomend you hotkey this)
 ```
 
+[Resources(WIP)](https://www.notion.so/PaperMC-2d65812886564b2ebaec4546d2d48a10)
+
 ## Paper server setup
 
 1. Install [PaperMC](https://papermc.io/downloads)
